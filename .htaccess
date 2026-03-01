@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the request already targets a real file or folder, serve it as-is.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise, route everything through the Laravel front controller.
+    RewriteRule ^ index.php [L]
+</IfModule>

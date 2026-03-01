@@ -39,6 +39,7 @@ services:
         value: database
       - key: MAIL_MAILER
         value: log
+    healthCheckPath: /up
 
 databases:
   - name: mydash-db
