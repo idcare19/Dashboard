@@ -97,7 +97,9 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => env('APP_KEY'),
+    'key' => env('APP_KEY')
+        ?: env('APP_FALLBACK_KEY')
+        ?: 'base64:'.base64_encode(hash('sha256', (string) env('APP_NAME', 'mydash'), true)),
 
     'previous_keys' => [
         ...array_filter(
