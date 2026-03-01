@@ -79,6 +79,43 @@ Also recommended on Render:
 - `SESSION_SECURE_COOKIE=true`
 - `DB_SSLMODE=require`
 
+## Deploy on Koyeb (No card friendly)
+
+This repo is Koyeb-ready using the included Dockerfile and startup script.
+
+### Steps
+
+1. Open Koyeb and create a new **Web Service**.
+2. Choose **GitHub** and select `idcare19/Dashboard`.
+3. Builder: **Dockerfile** (auto-detected from repo root).
+4. Set the following environment variables in Koyeb:
+	- `APP_NAME=mydash`
+	- `APP_ENV=production`
+	- `APP_DEBUG=false`
+	- `APP_KEY` (generate with `php artisan key:generate --show`)
+	- `APP_URL=https://<your-service>.koyeb.app`
+	- `FORCE_HTTPS=true`
+	- `LOG_CHANNEL=stderr`
+	- `LOG_LEVEL=info`
+	- `DB_CONNECTION=pgsql`
+	- `DB_URL=<your_neon_or_external_postgres_connection_string>`
+	- `DB_SSLMODE=require`
+	- `SESSION_DRIVER=file`
+	- `SESSION_SECURE_COOKIE=true`
+	- `CACHE_STORE=file`
+	- `QUEUE_CONNECTION=sync`
+	- `MAIL_MAILER=log`
+5. Deploy. The container startup script will run migrations and caches automatically.
+
+### Health check
+
+- Path: `/up`
+
+### Notes
+
+- Use a free external Postgres provider (e.g. Neon) if you want persistent DB without card.
+- If startup fails because DB is unavailable, verify `DB_URL` and SSL mode.
+
 For multiple origins, separate by commas.
 
 ### Example frontend fetch

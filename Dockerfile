@@ -15,8 +15,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader
 
+RUN chmod +x /var/www/html/docker/koyeb-start.sh
+
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD ["/var/www/html/docker/koyeb-start.sh"]
