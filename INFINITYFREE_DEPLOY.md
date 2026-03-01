@@ -15,6 +15,16 @@ In your hosting account, create this structure (same level folders):
 
 > On InfinityFree, the web root is usually `htdocs`.
 
+### If File Manager blocks unzip outside `htdocs`
+
+Some InfinityFree file managers allow extraction **only within `htdocs`**.
+In that case, use this layout instead:
+
+- `htdocs/mydash_app/`  ← Laravel app core
+- `htdocs/index.php` / `.htaccess` / `.user.ini`  ← public entry files
+
+The provided `index.php` supports both layouts automatically.
+
 ## 2) Upload Laravel app core
 
 Upload these folders/files to `mydash_app/`:

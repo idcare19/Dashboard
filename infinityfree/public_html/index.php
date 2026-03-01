@@ -14,6 +14,7 @@ define('LARAVEL_START', microtime(true));
  */
 
 $appBaseCandidates = [
+    realpath(__DIR__.'/mydash_app'),
     realpath(__DIR__.'/../mydash_app'),
     realpath(__DIR__.'/../mydash'),
     realpath(__DIR__.'/..'),
