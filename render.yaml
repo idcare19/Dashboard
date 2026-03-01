@@ -45,6 +45,6 @@ services:
 
 databases:
   - name: mydash-db
-    plan: free
+    plan: basic-256mb
     databaseName: mydash
     user: mydash_user
