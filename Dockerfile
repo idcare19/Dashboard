@@ -5,7 +5,7 @@ WORKDIR /var/www/html
 RUN apt-get update && apt-get install -y \
     git unzip libpng-dev libonig-dev libxml2-dev curl
 
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
 
 RUN a2enmod rewrite
 

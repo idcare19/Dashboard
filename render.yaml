@@ -1,17 +1,11 @@
 services:
   - type: web
     name: mydash-web
-    runtime: php
+    runtime: docker
     plan: free
-    buildCommand: |
-      composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
-      php artisan optimize:clear
-    startCommand: |
-      php artisan migrate --force
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-      php -S 0.0.0.0:${PORT:-10000} -t public
+    dockerfilePath: ./Dockerfile
+    dockerCommand: >-
+      sh -lc "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php -S 0.0.0.0:${PORT:-10000} -t public"
     envVars:
       - key: APP_NAME
         value: mydash
