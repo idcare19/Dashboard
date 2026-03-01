@@ -116,6 +116,17 @@ This repo is Koyeb-ready using the included Dockerfile and startup script.
 - Use a free external Postgres provider (e.g. Neon) if you want persistent DB without card.
 - If startup fails because DB is unavailable, verify `DB_URL` and SSL mode.
 
+## Deploy on InfinityFree (No card)
+
+Use the included shared-hosting package:
+
+- `INFINITYFREE_DEPLOY.md`
+- `infinityfree/public_html/index.php`
+- `infinityfree/public_html/.htaccess`
+- `infinityfree/public_html/.user.ini`
+
+This flow keeps Laravel core outside web root and exposes only `public_html` safely.
+
 For multiple origins, separate by commas.
 
 ### Example frontend fetch
