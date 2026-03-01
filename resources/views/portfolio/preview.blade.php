@@ -3,6 +3,20 @@
 @section('title', 'Dashboard Preview')
 
 @section('content')
+    <style>
+        .preview-card {
+            border: 1px solid rgba(142, 165, 255, .24);
+            background: rgba(8, 17, 36, .5);
+            border-radius: 14px;
+        }
+
+        .preview-bar {
+            background: linear-gradient(180deg, #65e9ca, #6f84ff);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 10px 10px 4px 4px;
+        }
+    </style>
+
     <section class="glass p-3 p-md-4 mb-3">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
             <div>
@@ -22,12 +36,15 @@
     <section class="glass p-3 p-md-4 mb-3">
         <h2 class="h5 mb-3">Graph Showcase</h2>
         @php
-            $points = $portfolio->graph_points ?? [];
+            $points = $portfolio->graph_points;
+            if (! is_array($points) || count($points) === 0) {
+                $points = [12, 18, 15, 26, 31, 28, 34];
+            }
             $max = max($points ?: [1]);
         @endphp
         <div class="d-flex align-items-end gap-2" style="height:220px;">
             @foreach ($points as $p)
-                <div class="bg-info rounded-top" style="width: 100%; max-width: 56px; height: {{ max(8, (int) (($p / $max) * 100)) }}%;" title="{{ $p }}"></div>
+                <div class="preview-bar" style="width: 100%; max-width: 56px; height: {{ max(8, (int) (($p / $max) * 100)) }}%;" title="{{ $p }}"></div>
             @endforeach
         </div>
     </section>
@@ -37,7 +54,7 @@
         <div class="row g-3">
             @foreach (($portfolio->upcoming_projects ?? []) as $item)
                 <div class="col-12 col-md-6">
-                    <div class="border rounded p-3 h-100">
+                    <div class="preview-card p-3 h-100">
                         <h3 class="h6 mb-1">{{ $item['title'] ?? '' }}</h3>
                         <div class="text-muted-x small mb-2">ETA: {{ $item['eta'] ?? '' }}</div>
                         <p class="mb-0">{{ $item['details'] ?? '' }}</p>

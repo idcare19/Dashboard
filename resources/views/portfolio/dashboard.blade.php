@@ -3,13 +3,43 @@
 @section('title', 'Portfolio Dashboard')
 
 @section('content')
+    <style>
+        .editor-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .78rem;
+            border-radius: 999px;
+            padding: .3rem .7rem;
+            border: 1px solid rgba(147, 170, 255, .32);
+            background: rgba(120, 142, 255, .12);
+            color: #dbe5ff;
+        }
+
+        .editor-section {
+            background: rgba(8, 17, 36, .45);
+            border: 1px solid rgba(145, 167, 255, .2);
+            border-radius: 14px;
+            padding: .9rem;
+        }
+
+        .editor-sticky-bar {
+            position: sticky;
+            bottom: .75rem;
+            z-index: 10;
+        }
+    </style>
+
     <section class="glass p-3 p-md-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
             <div>
                 <h1 class="h3 mb-1">Portfolio Dashboard</h1>
-                <p class="text-muted-x mb-0">Easy editor mode — no JSON needed ✨</p>
+                <p class="text-muted-x mb-0">Modern editor mode — updates are reflected in live preview instantly ⚡</p>
             </div>
-            <a href="{{ route('portfolio') }}" class="btn btn-outline-light" target="_blank">Preview Portfolio</a>
+            <div class="d-flex align-items-center gap-2">
+                <span class="editor-chip" id="editor-state-chip">✅ All changes saved</span>
+                <a href="{{ route('portfolio') }}" class="btn btn-outline-light" target="_blank">Preview Portfolio</a>
+            </div>
         </div>
 
         @php
@@ -35,33 +65,97 @@
             $skillRows = old('skills', $portfolio->skills ?? [['name' => '', 'icon' => '']]);
             $experienceRows = old('experiences', $portfolio->experiences ?? [['title' => '', 'period' => '', 'description' => '']]);
             $socialRows = old('socials', $portfolio->socials ?? [['platform' => '', 'url' => '', 'handle' => '']]);
-            $graphRows = old('graph_points', $portfolio->graph_points ?? ['']);
+            $graphRows = old('graph_points', $portfolio->graph_points ?? [12, 18, 15, 26, 31, 28, 34]);
+            if (! is_array($graphRows) || count($graphRows) === 0) {
+                $graphRows = [12, 18, 15, 26, 31, 28, 34];
+            }
             $upcomingRows = old('upcoming_projects', $portfolio->upcoming_projects ?? [['title' => '', 'eta' => '', 'details' => '']]);
             $updateRows = old('updates_feed', $portfolio->updates_feed ?? [['title' => '', 'date' => '']]);
         @endphp
 
-        <form action="{{ route('dashboard.update') }}" method="POST" class="row g-3">
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-xl-7">
+                <div class="glass p-3 h-100 border border-primary-subtle">
+                    <div class="small text-uppercase text-muted-x mb-2">Live Content Snapshot</div>
+                    <h2 class="h4 mb-1" id="preview-site-title">{{ old('site_title', $portfolio->site_title) }}</h2>
+                    <p class="mb-1"><strong id="preview-person-name">{{ old('person_name', $portfolio->person_name) }}</strong></p>
+                    <p class="mb-2 text-info" id="preview-hero-title">{{ old('hero_title', $portfolio->hero_title) }}</p>
+                    <p class="small text-muted-x mb-3" id="preview-hero-subtitle">{{ old('hero_subtitle', $portfolio->hero_subtitle) }}</p>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3" id="preview-badges-wrap">
+                        @foreach ($badgeRows as $badge)
+                            @if (filled($badge))
+                                <span class="badge text-bg-secondary">{{ $badge }}</span>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3">
+                            <div class="border rounded p-2 text-center">
+                                <div class="fw-bold" id="preview-project-count">{{ collect($projectRows)->filter(fn ($row) => filled($row['title'] ?? null))->count() }}</div>
+                                <div class="small text-muted-x">Projects</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="border rounded p-2 text-center">
+                                <div class="fw-bold" id="preview-skill-count">{{ collect($skillRows)->filter(fn ($row) => filled($row['name'] ?? null))->count() }}</div>
+                                <div class="small text-muted-x">Skills</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="border rounded p-2 text-center">
+                                <div class="fw-bold" id="preview-social-count">{{ collect($socialRows)->filter(fn ($row) => filled($row['platform'] ?? null))->count() }}</div>
+                                <div class="small text-muted-x">Socials</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="border rounded p-2 text-center">
+                                <div class="fw-bold" id="preview-update-count">{{ collect($updateRows)->filter(fn ($row) => filled($row['title'] ?? null))->count() }}</div>
+                                <div class="small text-muted-x">Updates</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="small text-muted-x">Primary contact:</div>
+                    <div id="preview-contact-email">{{ old('contact_email', $portfolio->contact_email) ?: 'Not set yet' }}</div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-5">
+                <div class="glass p-3 h-100">
+                    <div class="small text-uppercase text-muted-x mb-2">Quick Tips</div>
+                    <ul class="mb-0 text-muted-x small">
+                        <li>Add/remove rows with the section buttons.</li>
+                        <li>Social URLs can be pasted without https (auto-fixed server-side).</li>
+                        <li>Leave Live/Code URL empty to show “under development” popup in portfolio.</li>
+                        <li>Use concise update titles so mobile cards stay clean.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ route('dashboard.update') }}" method="POST" class="row g-3" id="dashboard-editor-form">
             @csrf
             @method('PUT')
 
             <div class="col-12 col-md-6">
                 <label class="form-label">Site Title</label>
-                <input type="text" name="site_title" class="form-control" value="{{ old('site_title', $portfolio->site_title) }}" required>
+                <input type="text" name="site_title" class="form-control" value="{{ old('site_title', $portfolio->site_title) }}" data-preview-target="preview-site-title" required>
             </div>
 
             <div class="col-12 col-md-6">
                 <label class="form-label">Person Name</label>
-                <input type="text" name="person_name" class="form-control" value="{{ old('person_name', $portfolio->person_name) }}" required>
+                <input type="text" name="person_name" class="form-control" value="{{ old('person_name', $portfolio->person_name) }}" data-preview-target="preview-person-name" required>
             </div>
 
             <div class="col-12">
                 <label class="form-label">Hero Title</label>
-                <input type="text" name="hero_title" class="form-control" value="{{ old('hero_title', $portfolio->hero_title) }}" required>
+                <input type="text" name="hero_title" class="form-control" value="{{ old('hero_title', $portfolio->hero_title) }}" data-preview-target="preview-hero-title" required>
             </div>
 
             <div class="col-12">
                 <label class="form-label">Hero Subtitle</label>
-                <textarea name="hero_subtitle" class="form-control" rows="2" required>{{ old('hero_subtitle', $portfolio->hero_subtitle) }}</textarea>
+                <textarea name="hero_subtitle" class="form-control" rows="2" data-preview-target="preview-hero-subtitle" required>{{ old('hero_subtitle', $portfolio->hero_subtitle) }}</textarea>
             </div>
 
             <div class="col-12 col-md-4">
@@ -76,7 +170,7 @@
 
             <div class="col-12 col-md-4">
                 <label class="form-label">Contact Email</label>
-                <input type="email" name="contact_email" class="form-control" value="{{ old('contact_email', $portfolio->contact_email) }}">
+                <input type="email" name="contact_email" class="form-control" value="{{ old('contact_email', $portfolio->contact_email) }}" data-preview-target="preview-contact-email">
             </div>
 
             <div class="col-12 col-md-8">
@@ -89,8 +183,8 @@
                 <input type="text" name="popup_message" class="form-control" value="{{ old('popup_message', $portfolio->popup_message) }}">
             </div>
 
-            {{-- Badges --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Badges</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="badgeRows">+ Add Badge</button>
@@ -103,10 +197,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Stats --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Stats</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="statRows">+ Add Stat</button>
@@ -120,10 +215,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- About Cards --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">About Cards</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="aboutRows">+ Add Card</button>
@@ -140,10 +236,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Projects --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Projects</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="projectRows">+ Add Project</button>
@@ -163,10 +260,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Skills --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Skills</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="skillRows">+ Add Skill</button>
@@ -180,10 +278,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Experience --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Experience Timeline</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="experienceRows">+ Add Experience</button>
@@ -200,10 +299,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Socials --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Social Links</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="socialRows">+ Add Social</button>
@@ -218,10 +318,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Graph Points --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Graph Points</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="graphRows">+ Add Point</button>
@@ -234,10 +335,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Upcoming --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Upcoming Projects</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="upcomingRows">+ Add Upcoming</button>
@@ -254,10 +356,11 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
-            {{-- Updates feed --}}
             <div class="col-12">
+                <div class="editor-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">Updates Feed</label>
                     <button type="button" class="btn btn-sm btn-outline-light" data-add-row="updateRows">+ Add Update</button>
@@ -271,6 +374,7 @@
                         </div>
                     @endforeach
                 </div>
+                </div>
             </div>
 
             @if (auth()->user()?->isAdmin())
@@ -280,11 +384,16 @@
                 </div>
             @endif
 
-            <div class="col-12 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Save All Changes</button>
-                @if (auth()->user()?->isAdmin())
-                    <a href="{{ route('users.index') }}" class="btn btn-outline-light">Manage Users</a>
-                @endif
+            <div class="col-12 editor-sticky-bar">
+                <div class="glass p-2 p-md-3 d-flex gap-2 flex-wrap justify-content-between align-items-center">
+                    <span class="text-muted-x small">Tip: Use this bar while scrolling long forms.</span>
+                    <div class="d-flex gap-2">
+                        @if (auth()->user()?->isAdmin())
+                            <a href="{{ route('users.index') }}" class="btn btn-outline-light">Manage Users</a>
+                        @endif
+                        <button type="submit" class="btn btn-primary" id="dashboard-save-btn">Save All Changes</button>
+                    </div>
+                </div>
             </div>
         </form>
     </section>
@@ -468,25 +577,138 @@
     </template>
 
     <script>
-        document.addEventListener('click', function (e) {
-            const addButton = e.target.closest('[data-add-row]');
-            if (addButton) {
-                const targetId = addButton.getAttribute('data-add-row');
-                const container = document.getElementById(targetId);
-                const template = document.getElementById('tpl-' + targetId);
-                if (container && template) {
-                    container.insertAdjacentHTML('beforeend', template.innerHTML.trim());
-                }
+        (function () {
+            const form = document.getElementById('dashboard-editor-form');
+            if (!form) {
                 return;
             }
 
-            const removeButton = e.target.closest('[data-remove-row]');
-            if (removeButton) {
-                const row = removeButton.closest('.repeater-row');
-                if (row) {
-                    row.remove();
+            const stateChip = document.getElementById('editor-state-chip');
+            const saveButton = document.getElementById('dashboard-save-btn');
+
+            const setDirtyState = (isDirty) => {
+                if (!stateChip) {
+                    return;
                 }
-            }
-        });
+
+                stateChip.textContent = isDirty ? '🟡 Unsaved changes' : '✅ All changes saved';
+                stateChip.style.background = isDirty ? 'rgba(255, 193, 7, .15)' : 'rgba(120, 142, 255, .12)';
+                stateChip.style.borderColor = isDirty ? 'rgba(255, 193, 7, .32)' : 'rgba(147, 170, 255, .32)';
+            };
+
+            const setText = (id, value, fallback = 'Not set yet') => {
+                const el = document.getElementById(id);
+                if (!el) {
+                    return;
+                }
+                const trimmed = (value || '').toString().trim();
+                el.textContent = trimmed || fallback;
+            };
+
+            const updateBadgesPreview = () => {
+                const wrap = document.getElementById('preview-badges-wrap');
+                if (!wrap) {
+                    return;
+                }
+
+                const badges = Array.from(form.querySelectorAll('input[name="badges[]"]'))
+                    .map((input) => input.value.trim())
+                    .filter(Boolean)
+                    .slice(0, 8);
+
+                wrap.innerHTML = badges.length
+                    ? badges.map((badge) => `<span class="badge text-bg-secondary">${badge.replace(/</g, '&lt;')}</span>`).join('')
+                    : '<span class="text-muted-x small">No badges added yet.</span>';
+            };
+
+            const countRows = (selector, id) => {
+                const total = Array.from(form.querySelectorAll(selector)).filter((input) => input.value.trim() !== '').length;
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = String(total);
+                }
+            };
+
+            const refreshPreviewCounts = () => {
+                countRows('input[name="projects[][title]"]', 'preview-project-count');
+                countRows('input[name="skills[][name]"]', 'preview-skill-count');
+                countRows('input[name="socials[][platform]"]', 'preview-social-count');
+                countRows('input[name="updates_feed[][title]"]', 'preview-update-count');
+            };
+
+            const bindInputMirror = (input) => {
+                const targetId = input.getAttribute('data-preview-target');
+                if (!targetId) {
+                    return;
+                }
+
+                input.addEventListener('input', () => {
+                    setText(targetId, input.value, targetId === 'preview-contact-email' ? 'Not set yet' : '');
+                });
+            };
+
+            form.querySelectorAll('[data-preview-target]').forEach(bindInputMirror);
+
+            document.addEventListener('click', function (e) {
+                const addButton = e.target.closest('[data-add-row]');
+                if (addButton) {
+                    const targetId = addButton.getAttribute('data-add-row');
+                    const container = document.getElementById(targetId);
+                    const template = document.getElementById('tpl-' + targetId);
+                    if (container && template) {
+                        container.insertAdjacentHTML('beforeend', template.innerHTML.trim());
+                    }
+
+                    refreshPreviewCounts();
+                    updateBadgesPreview();
+                    return;
+                }
+
+                const removeButton = e.target.closest('[data-remove-row]');
+                if (removeButton) {
+                    const row = removeButton.closest('.repeater-row');
+                    if (row) {
+                        row.remove();
+                    }
+
+                    refreshPreviewCounts();
+                    updateBadgesPreview();
+                }
+            });
+
+            form.addEventListener('input', function (e) {
+                const target = e.target;
+                if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+                    return;
+                }
+
+                if (target.name === 'badges[]') {
+                    updateBadgesPreview();
+                }
+
+                if (target.name === 'projects[][title]' || target.name === 'skills[][name]' || target.name === 'socials[][platform]' || target.name === 'updates_feed[][title]') {
+                    refreshPreviewCounts();
+                }
+
+                setDirtyState(true);
+            });
+
+            form.addEventListener('submit', () => {
+                if (saveButton) {
+                    saveButton.disabled = true;
+                    saveButton.textContent = 'Saving...';
+                }
+                setDirtyState(false);
+            });
+
+            updateBadgesPreview();
+            refreshPreviewCounts();
+            setText('preview-site-title', form.querySelector('input[name="site_title"]')?.value || '', 'Untitled Site');
+            setText('preview-person-name', form.querySelector('input[name="person_name"]')?.value || '', 'Your Name');
+            setText('preview-hero-title', form.querySelector('input[name="hero_title"]')?.value || '', 'Hero Title');
+            setText('preview-hero-subtitle', form.querySelector('textarea[name="hero_subtitle"]')?.value || '', 'Hero subtitle will appear here');
+            setText('preview-contact-email', form.querySelector('input[name="contact_email"]')?.value || '', 'Not set yet');
+            setDirtyState(false);
+        })();
     </script>
 @endsection

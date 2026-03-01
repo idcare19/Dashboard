@@ -15,20 +15,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing']) && ! filter_var(env('ALLOW_PRODUCTION_SEED', false), FILTER_VALIDATE_BOOL)) {
+            return;
+        }
+
+        $adminEmail = env('SEED_ADMIN_EMAIL', 'admin@example.com');
+        $adminPassword = env('SEED_ADMIN_PASSWORD', 'ChangeMeNow!123');
+        $userEmail = env('SEED_USER_EMAIL', 'user@example.com');
+        $userPassword = env('SEED_USER_PASSWORD', 'ChangeMeNow!123');
+
         User::query()->updateOrCreate(
-            ['email' => 'dream1mm113@gmail.com'],
+            ['email' => $adminEmail],
             [
                 'name' => 'Abhishek Admin',
-                'password' => 'fakeavi09',
+                'password' => $adminPassword,
                 'role' => 'admin',
             ]
         );
 
         User::query()->updateOrCreate(
-            ['email' => 'normal.user@example.com'],
+            ['email' => $userEmail],
             [
                 'name' => 'Normal User',
-                'password' => 'password123',
+                'password' => $userPassword,
                 'role' => 'user',
             ]
         );

@@ -9,15 +9,16 @@
 
 ## Deploy on Render (Directly Live)
 
-This project includes a ready-to-use `render.yaml` for one-click Blueprint deploy.
+This project includes a production-ready `render.yaml` for one-click Blueprint deploy.
 
 ### What it configures
 
 - PHP web service
 - PostgreSQL database
 - Auto migrations on start
-- Auto seeding on start
-- Session storage in database
+- Config / route / view cache warmup on start
+- HTTPS-aware URL generation
+- Rate limiting on auth/contact/access endpoints
 
 ### Steps
 
@@ -30,12 +31,16 @@ This project includes a ready-to-use `render.yaml` for one-click Blueprint deplo
 5. Set `APP_URL` in Render environment to your Render domain.
 6. Deploy.
 
-### Seeded login credentials
+### Seeding in production (safe-by-default)
 
-- Admin email: `dream1mm113@gmail.com`
-- Admin password: `fakeavi09`
+- Production seeding is disabled by default.
+- To seed intentionally in production, set:
+	- `ALLOW_PRODUCTION_SEED=true`
+	- `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`
+	- `SEED_USER_EMAIL`, `SEED_USER_PASSWORD`
+- Then run seed manually from shell / job.
 
-> ⚠️ Important: Change this password immediately after first production login.
+> ✅ No default public admin credentials are shipped anymore.
 
 ### Temporary access flow (1 hour)
 
@@ -67,6 +72,12 @@ You can host your frontend on Vercel and this Laravel app on Render as an API ba
 Set this environment variable on Render:
 
 - `CORS_ALLOWED_ORIGINS=https://idacre19.vercel.app`
+
+Also recommended on Render:
+
+- `FORCE_HTTPS=true`
+- `SESSION_SECURE_COOKIE=true`
+- `DB_SSLMODE=require`
 
 For multiple origins, separate by commas.
 

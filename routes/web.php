@@ -10,15 +10,23 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PortfolioController::class, 'index'])->name('portfolio');
-Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
+Route::post('/contact', [ContactMessageController::class, 'store'])
+	->middleware('throttle:contact-web')
+	->name('contact.store');
 
 Route::middleware('guest')->group(function (): void {
 	Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-	Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
+	Route::post('/login', [AuthController::class, 'login'])
+		->middleware('throttle:auth-login')
+		->name('login.perform');
 	Route::get('/access/request', [DashboardAccessController::class, 'showRequestForm'])->name('access.request.form');
-	Route::post('/access/request', [DashboardAccessController::class, 'submitRequest'])->name('access.request.submit');
+	Route::post('/access/request', [DashboardAccessController::class, 'submitRequest'])
+		->middleware('throttle:access-request')
+		->name('access.request.submit');
 	Route::get('/access/key', [DashboardAccessController::class, 'showKeyForm'])->name('access.key.form');
-	Route::post('/access/key', [DashboardAccessController::class, 'verifyKey'])->name('access.key.verify');
+	Route::post('/access/key', [DashboardAccessController::class, 'verifyKey'])
+		->middleware('throttle:access-key')
+		->name('access.key.verify');
 });
 
 Route::middleware('auth')->group(function (): void {

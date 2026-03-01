@@ -4,14 +4,14 @@ services:
     runtime: php
     plan: free
     buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      php artisan config:clear
-      php artisan route:clear
-      php artisan view:clear
+      composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+      php artisan optimize:clear
     startCommand: |
       php artisan migrate --force
-      php artisan db:seed --force
-      php artisan serve --host=0.0.0.0 --port=$PORT
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+      php -S 0.0.0.0:${PORT:-10000} -t public
     envVars:
       - key: APP_NAME
         value: mydash
@@ -23,16 +23,24 @@ services:
         generateValue: true
       - key: APP_URL
         sync: false
+      - key: FORCE_HTTPS
+        value: "true"
       - key: LOG_CHANNEL
         value: stderr
+      - key: LOG_LEVEL
+        value: info
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_URL
         fromDatabase:
           name: mydash-db
           property: connectionString
+      - key: DB_SSLMODE
+        value: require
       - key: SESSION_DRIVER
         value: file
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
       - key: CACHE_STORE
         value: file
       - key: QUEUE_CONNECTION

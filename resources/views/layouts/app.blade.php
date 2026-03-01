@@ -9,37 +9,54 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
+        :root {
+            --bg: #060b16;
+            --bg-2: #0e1730;
+            --card: linear-gradient(170deg, rgba(15, 25, 50, .9), rgba(10, 18, 36, .92));
+            --line: rgba(138, 161, 255, .24);
+            --text-main: #e7eeff;
+            --text-soft: #9eb0dc;
+            --brand: #788eff;
+            --brand-2: #57e1c6;
+        }
+
         body {
             min-height: 100vh;
-            background: radial-gradient(circle at 10% -20%, #273f7f 0, transparent 30%), #080d1f;
-            color: #e8efff;
+            background:
+                radial-gradient(1200px 700px at 100% -5%, rgba(120, 142, 255, .24), transparent 54%),
+                radial-gradient(900px 600px at -10% 12%, rgba(87, 225, 198, .15), transparent 55%),
+                linear-gradient(180deg, var(--bg), #081022);
+            color: var(--text-main);
         }
 
         .glass {
-            background: linear-gradient(160deg, #101b36 0%, #0b1430 100%);
-            border: 1px solid #243d68;
-            border-radius: 14px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 16px 36px rgba(2, 7, 20, .45);
+            backdrop-filter: blur(9px);
         }
 
         .table-glass {
-            --bs-table-bg: #111f3c;
-            --bs-table-striped-bg: #122347;
-            --bs-table-hover-bg: #132a52;
+            --bs-table-bg: #101c37;
+            --bs-table-striped-bg: #122144;
+            --bs-table-hover-bg: #17305d;
             --bs-table-color: #e4ecff;
-            --bs-table-border-color: #27416e;
+            --bs-table-border-color: #294570;
             border-radius: 12px;
             overflow: hidden;
         }
 
         .text-muted-x {
-            color: #9aacd8;
+            color: var(--text-soft);
         }
 
         .form-control,
         .form-select {
-            background-color: #0b1632;
-            border-color: #2c4674;
+            background-color: #0c1630;
+            border-color: #34507f;
             color: #e4ecff;
+            border-radius: 12px;
         }
 
         .form-control::placeholder {
@@ -49,24 +66,48 @@
         .form-control:focus,
         .form-select:focus {
             background-color: #0b1632;
-            border-color: #4d6aff;
+            border-color: #5e77ff;
             color: #e4ecff;
-            box-shadow: 0 0 0 .2rem rgba(124, 108, 255, .2);
+            box-shadow: 0 0 0 .2rem rgba(120, 142, 255, .18);
         }
 
         .navbar {
-            border: 1px solid #243d68;
-            border-radius: 14px;
-            background: linear-gradient(160deg, #101b36 0%, #0b1430 100%);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(160deg, rgba(16, 27, 54, .88) 0%, rgba(11, 20, 48, .9) 100%);
+            backdrop-filter: blur(10px);
         }
 
         .nav-link {
             color: #b7c7ef;
+            border-radius: 999px;
+            padding: .5rem .9rem !important;
         }
 
         .nav-link.active,
         .nav-link:hover {
             color: #fff;
+            background: rgba(120, 142, 255, .14);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            border-color: rgba(30, 195, 136, .35);
+        }
+
+        .alert-danger {
+            border-color: rgba(217, 83, 79, .38);
+        }
+
+        .btn-primary {
+            background: linear-gradient(130deg, var(--brand), var(--brand-2));
+            border: none;
+            color: #091427;
+            font-weight: 700;
         }
     </style>
 </head>

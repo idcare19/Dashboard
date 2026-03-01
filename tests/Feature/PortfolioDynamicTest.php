@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\PortfolioSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class PortfolioDynamicTest extends TestCase
@@ -111,6 +112,40 @@ class PortfolioDynamicTest extends TestCase
             'email' => 'test@example.com',
             'message' => 'Hello from contact form',
         ]);
+    }
+
+    public function test_contact_form_handles_missing_table_gracefully(): void
+    {
+        Schema::dropIfExists('contact_messages');
+
+        $response = $this->post(route('contact.store'), [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'message' => 'Hello from contact form',
+        ]);
+
+        $response
+            ->assertRedirect(route('portfolio') . '#contact')
+            ->assertSessionHasErrors(['contact']);
+    }
+
+    public function test_contact_form_rate_limit_shows_friendly_error(): void
+    {
+        $payload = [
+            'name' => 'Rate User',
+            'email' => 'rate@example.com',
+            'message' => 'Spam check message',
+        ];
+
+        foreach (range(1, 12) as $_) {
+            $this->post(route('contact.store'), $payload)->assertRedirect(route('portfolio') . '#contact');
+        }
+
+        $blocked = $this->post(route('contact.store'), $payload);
+
+        $blocked
+            ->assertRedirect(route('portfolio') . '#contact')
+            ->assertSessionHasErrors(['contact']);
     }
 
     public function test_dashboard_update_accepts_social_url_without_scheme(): void

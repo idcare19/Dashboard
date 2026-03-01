@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ContactMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ContactMessageController extends Controller
 {
@@ -16,7 +17,25 @@ class ContactMessageController extends Controller
             'message' => ['required', 'string', 'max:5000'],
         ]);
 
-        ContactMessage::create($validated);
+        if (! Schema::hasTable('contact_messages')) {
+            return redirect()
+                ->to(route('portfolio') . '#contact')
+                ->withErrors([
+                    'contact' => 'Contact form is temporarily unavailable. Please try again after running migrations.',
+                ])
+                ->withInput();
+        }
+
+        try {
+            ContactMessage::create($validated);
+        } catch (\Throwable) {
+            return redirect()
+                ->to(route('portfolio') . '#contact')
+                ->withErrors([
+                    'contact' => 'Could not send your message right now. Please try again in a moment.',
+                ])
+                ->withInput();
+        }
 
         return redirect()
             ->to(route('portfolio') . '#contact')
