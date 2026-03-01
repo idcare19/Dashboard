@@ -65,6 +65,23 @@ If APP_KEY is empty, generate one locally and paste it into `.env`:
 
 If CLI/migrations are unavailable on InfinityFree:
 
+### Quick import (recommended)
+
+Import this file in InfinityFree phpMyAdmin:
+
+- `database/sql/infinityfree_full_import.sql`
+
+It includes:
+
+- All required Laravel tables
+- Default portfolio content
+- 2 users for login:
+	- `admin@example.com` (admin)
+	- `user@example.com` (user)
+	- Password for both: `ChangeMeNow!123`
+
+> Change these passwords immediately after first login.
+
 1. Run migrations locally against a temporary MySQL database.
 2. Export schema/data SQL using phpMyAdmin.
 3. Import SQL into InfinityFree phpMyAdmin.
